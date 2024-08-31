@@ -6,38 +6,31 @@ const database = require("./config/database");
 // cài env
 require("dotenv").config();
 
+//  cài body-parser
+const bodyParser = require('body-parser');
+
+// cài cors
+const cors = require("cors");
+
+// cài cookieParser
+const cookieParser = require("cookie-parser");
+
+const routesApiV1 = require("./api/v1/routes/index.route");
+
 const app = express(); 
 const port = process.env.PORT;
 
 database.connect();
 
-const Task = require("./models/task.model");
+// parser application/json
+app.use(bodyParser.json());
 
-app.get("/tasks", async (req, res) => { 
-    const tasks = await Task.find({
-        deleted:false
-    });
+app.use(cors());
 
-    console.log(tasks);
+app.use(cookieParser());
 
-    res.json(tasks);
-});
-
-app.get("/tasks/detail/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        const task = await Task.findOne({
-            _id: id,
-            deleted: false
-        });
-
-        res.json(task);
-    } catch (error) {
-        res.json("Không tìm thấy!");
-    }
-    
-});
+// routes version1
+routesApiV1(app);
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
